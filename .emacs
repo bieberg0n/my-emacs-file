@@ -17,7 +17,7 @@
 (transient-mark-mode t)
 ;页面平滑滚动， scroll-margin 3 靠近屏幕边沿3行时开始滚动，可以很好的看到上下文。
 (setq scroll-margin 3
-scroll-conservatively 10000)
+	scroll-conservatively 10000)
 ;自动换行
 ;; (global-visual-line-mode 1)
 ;=========功能==========
