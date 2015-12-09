@@ -75,6 +75,51 @@ occurence of CHAR."
 	   ;; (whitespace-cleanup-mode 0)
 	   (setq tab-width 4)
 	   (setq python-indent 4)))
+
+;; 在行末或行中位置删除整行
+(defadvice kill-ring-save (before slickcopy activate compile)
+  (interactive
+  (if mark-active (list (region-beginning) (region-end))
+	(list (line-beginning-position)
+		  (line-beginning-position 2)))))
+(defadvice kill-region (before slickcut activate compile)
+  (interactive
+   (if mark-active (list (region-beginning) (region-end))
+	 (list (line-beginning-position)
+		   (line-beginning-position 2)))))
+
+;; 临时记号
+;; (global-set-key [(control ?\.)] 'ska-point-to-register)
+(global-set-key (kbd "C-c .") 'ska-point-to-register)
+;; (global-set-key [(control ?\,)] 'ska-jump-to-register)
+(global-set-key (kbd "C-c ,") 'ska-jump-to-register)
+(defun ska-point-to-register()
+  "Store cursorposition _fast_ in a register.
+Use ska-jump-to-register to jump back to the stored
+position."
+  (interactive)
+  (setq zmacs-region-stays t)
+  (point-to-register 8))
+
+(defun ska-jump-to-register()
+  "Switches between current cursorposition and position
+that was stored with ska-point-to-register."
+  (interactive)
+  (setq zmacs-region-stays t)
+  (let ((tmp (point-marker)))
+	(jump-to-register 8)
+	(set-register 8 tmp)))
+
+;; 括号匹配
+(global-set-key "%" 'match-paren)
+
+(defun match-paren (arg)
+  "Go to the matching paren if on a paren; otherwise insert %."
+  (interactive "p")
+  (cond ((looking-at "\\s\(") (forward-list 1) (backward-char 1))
+		((looking-at "\\s\)") (forward-char 1) (backward-list 1))
+		(t (self-insert-command (or arg 1)))))
+
 ;==========按键=========
 (global-set-key [f2] 'linum-mode)
 ;==========插件==========
@@ -241,3 +286,87 @@ occurence of CHAR."
 (require 'slime-autoloads)
 (slime-setup)
 ;; (slime-setup '(slime-fancy))
+
+;; el-get
+;; (setq
+;;  el-get-sources
+;;  '((:name asciidoc
+;; 		  :type elpa
+;; 		  :after (progn
+;; 				   (autoload 'doc-mode "doc-mode" nil t)
+;; 				   (add-to-list 'auto-mode-alist '("\.adoc$" . doc-mode))
+;; 				   (add-hook 'doc-mode-hook '(progn
+;; 											   (turn-on-auto-fill)
+;; 											   (require 'asciidoc)))))
+
+;;    (:name buffer-move   ; have to add your own keys
+;; 		  :after (progn
+;; 				   (global-set-key (kbd "<C-S-up>") 'buf-move-up)
+;; 				   (global-set-key (kbd "<C-S-down>") 'buf-move-down)
+;; 				   (global-set-key (kbd "<C-S-left>") 'buf-move-left)
+;; 				   (global-set-key (kbd "<C-S-right>") 'buf-move-right)))
+
+;;    (:name smex  ; a better (ido like) M-x
+;; 		  :after (progn
+;; 				   (setq smex-save-file "~/.emacs.d/.smex-items")
+;; 				   (global-set-key (kbd "M-x") 'smex)
+;; 				   (global-set-key (kbd "M-X") 'smex-major-mode-commands)))
+
+;;    (:name lisppaste        :type elpa)))
+;; (add-to-list 'load-path "~/.emacs.d/el-get/el-get")
+;; (require 'el-get)
+(add-to-list 'load-path "~/.emacs.d/el-get/el-get")
+
+(unless (require 'el-get nil 'noerror)
+  (with-current-buffer
+	  (url-retrieve-synchronously
+	   "https://raw.github.com/dimitri/el-get/master/el-get-install.el")
+	(goto-char (point-max))
+	(eval-print-last-sexp)))
+
+(add-to-list 'el-get-recipe-path "~/.emacs.d/el-get-user/recipes")
+(el-get 'sync)
+
+;; undo-tree
+;; (add-to-list 'load-path "~/.emacs.d/el-get/undo-tree")
+(require 'undo-tree)
+(global-undo-tree-mode)
+(defadvice undo-tree-visualizer-mode (after undo-tree-face activate)
+  (buffer-face-mode))
+
+;; highlight-parentheses
+;(add-hook 'highlight-parentheses-mode-hook
+;		  '(lambda ()
+;			 (setq autopair-handle-action-fns
+;				   (append
+;					(if autopair-handle-action-fns
+;						autopair-handle-action-fns
+;					  '(autopair-default-handle-action))
+;					'((lambda (action pair pos-before)
+;						(hl-paren-color-update)))))))
+;
+;(define-globalized-minor-mode global-highlight-parentheses-mode
+;  highlight-parentheses-mode
+;  (lambda ()
+;	(highlight-parentheses-mode t)))
+(require 'highlight-parentheses)
+;; (global-highlight-parentheses-mode t)
+(define-globalized-minor-mode global-highlight-parentheses-mode
+  highlight-parentheses-mode
+  (lambda ()
+	(highlight-parentheses-mode t)))
+(global-highlight-parentheses-mode t)
+
+;; rect-mark
+(global-set-key (kbd "C-x r C-SPC") 'rm-set-mark)
+(global-set-key (kbd "C-x r C-x") 'rm-exchange-point-and-mark)
+(global-set-key (kbd "C-x r C-w") 'rm-kill-region)
+(global-set-key (kbd "C-x r M-w") 'rm-kill-ring-save)
+(autoload 'rm-set-mark "rect-mark"
+  "Set mark for rectangle." t)
+(autoload 'rm-exchange-point-and-mark "rect-mark"
+  "Exchange point and mark for rectangle." t)
+(autoload 'rm-kill-region "rect-mark"
+  "Kill a rectangular region and save it in the kill ring." t)
+(autoload 'rm-kill-ring-save "rect-mark"
+  "Copy a rectangular region to the kill ring." t)
