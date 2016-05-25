@@ -122,6 +122,23 @@ that was stored with ska-point-to-register."
 
 ;==========按键=========
 (global-set-key [f2] 'linum-mode)
+(global-set-key [f5] 'delete-window)
+(global-set-key [f6] 'pythonit)
+(defun pythonit()
+  ""
+  (interactive)
+  (setq python-shell-interpreter "ipython3")
+  (python-shell-send-buffer)
+  ;; (switch-to-buffer "*Python")
+  ;; (insert file-name-directory "l/a.a"))
+  ;; (insert buffer-file-name )
+  (python-shell-switch-to-shell))
+  ;; (shell-command (format "python3 %s" buffer-file-name)))
+  ;; (shell-command "python3" buffer-file-name))
+  ;; (insert buffer-file-name (window-buffer (minibuffer-selected-window))))
+  ;; (setq a file-name-nondirectory)
+  ;; (insert a))
+  ;; (shell))
 ;==========插件==========
 (add-to-list 'load-path "~/.emacs.d/lisp/")
 (require 'color-theme)
