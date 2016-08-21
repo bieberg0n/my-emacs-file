@@ -220,6 +220,28 @@ See `highlight-parentheses-mode' for more information on Highlight-Parentheses m
 
 ;;;***
 
+;;;### (autoloads (enable-paredit-mode paredit-mode) "paredit/paredit"
+;;;;;;  "paredit/paredit.el" (22350 47698 22088 27000))
+;;; Generated autoloads from paredit/paredit.el
+
+(autoload 'paredit-mode "paredit/paredit" "\
+Minor mode for pseudo-structurally editing Lisp code.
+With a prefix argument, enable Paredit Mode even if there are
+  unbalanced parentheses in the buffer.
+Paredit behaves badly if parentheses are unbalanced, so exercise
+  caution when forcing Paredit Mode to be enabled, and consider
+  fixing unbalanced parentheses instead.
+\\<paredit-mode-map>
+
+\(fn &optional ARG)" t nil)
+
+(autoload 'enable-paredit-mode "paredit/paredit" "\
+Turn on pseudo-structural editing of Lisp code.
+
+\(fn)" t nil)
+
+;;;***
+
 ;;;### (autoloads (rm-mouse-drag-region rm-kill-ring-save rm-kill-region
 ;;;;;;  rm-exchange-point-and-mark rm-set-mark rm-example-picture-mode-bindings)
 ;;;;;;  "rect-mark/rect-mark" "rect-mark/rect-mark.el" (22112 14870
@@ -334,7 +356,7 @@ See `undo-tree-mode' for more information on Undo-Tree mode.
 ;;;;;;  "el-get/el-get-byte-compile.el" "el-get/el-get-core.el" "el-get/el-get-custom.el"
 ;;;;;;  "el-get/el-get-dependencies.el" "el-get/el-get-install.el"
 ;;;;;;  "el-get/el-get-methods.el" "el-get/el-get-notify.el" "el-get/el-get-recipes.el"
-;;;;;;  "el-get/el-get-status.el") (22112 14871 45542 440000))
+;;;;;;  "el-get/el-get-status.el") (22350 47698 328484 465000))
 
 ;;;***
 

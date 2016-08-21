@@ -12270,11 +12270,12 @@ its default 80x25 state -- dark grey on black."
   (interactive)
   (color-theme-install
    '(color-theme-vim-colors
-     ((background-color . "#ffffff")
+     (;(background-color . "#00ffff")
+	  ;; (background-color . "white")
       (background-mode . light)
       (border-color . "black")
       (cursor-color . "#000000")
-      (foreground-color . "#000000")
+      (foreground-color . "#FFFFFF")
       (mouse-color . "#000000"))
      ((Man-overstrike-face . bold)
       (Man-underline-face . underline)

@@ -22,6 +22,12 @@
 				  (require 'el-get))))
  (highlight-parentheses status "installed" recipe
 						(:name highlight-parentheses :description "Highlight the matching parentheses surrounding point." :type github :pkgname "nschum/highlight-parentheses.el"))
+ (paredit status "installed" recipe
+		  (:name paredit :description "Minor mode for editing parentheses" :type http :prepare
+				 (progn
+				   (autoload 'enable-paredit-mode "paredit")
+				   (autoload 'disable-paredit-mode "paredit"))
+				 :url "http://mumble.net/~campbell/emacs/paredit.el"))
  (rect-mark status "installed" recipe
 			(:name rect-mark :description "Mark a rectangle of text with highlighting." :type emacswiki))
  (undo-tree status "installed" recipe

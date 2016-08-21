@@ -122,8 +122,13 @@ that was stored with ska-point-to-register."
 
 ;==========按键=========
 (global-set-key [f2] 'linum-mode)
-(global-set-key [f5] 'delete-window)
-(global-set-key [f6] 'pythonit)
+;; (global-set-key [f5] 'delete-window)
+
+(add-hook 'python-mode-hook
+		  (lambda()
+			(define-key python-mode-map (kbd "<f6>") 'pythonit)
+			(define-key python-mode-map (kbd "<f5>") 'delete-window)))
+;; (global-set-key [f6] 'pythonit)
 (defun pythonit()
   ""
   (interactive)
@@ -139,6 +144,8 @@ that was stored with ska-point-to-register."
   ;; (setq a file-name-nondirectory)
   ;; (insert a))
   ;; (shell))
+
+
 ;==========插件==========
 (add-to-list 'load-path "~/.emacs.d/lisp/")
 (require 'color-theme)
@@ -146,6 +153,10 @@ that was stored with ska-point-to-register."
 ;(color-theme-dark-laptop)
 (color-theme-vim-colors)
 ;(color-theme-simple-1)
+(add-to-list 'custom-theme-load-path "~/.emacs.d/color-theme-6.6.0/themes/")
+;; (setq molokai-theme-kit t)
+;; (load-theme 'molokai t)
+
 (require 'package)
 (setq package-archives '(("gnu"."http://elpa.gnu.org/packages/")
 						 ("marmalade". "http://marmalade-repo.org/packages/")
@@ -208,9 +219,52 @@ that was stored with ska-point-to-register."
 (global-set-key (kbd "M-s m") 'er/mark-comment)
 (global-set-key (kbd "M-s f") 'er/mark-defun)
 
-;;elpy
-;(require 'elpy nil t)
-;(elpy-enable)
+;; company
+;; (require 'company)
+;; (add-hook 'after-init-hook 'global-company-mode); 全局开启
+;; (setq company-show-numbers t); 显示序号
+;; (setq company-idle-delay 0.2); 菜单延迟
+;; (setq company-minimum-prefix-length 1); 开始补全字数
+;; 自动完成
+(require 'company)
+(global-company-mode t); 全局开启
+
+(setq company-idle-delay 0.2;菜单延迟
+	  company-minimum-prefix-length 1; 开始补全字数
+	  company-require-match nil
+	  company-dabbrev-ignore-case nil
+	  company-dabbrev-downcase nil
+	  company-show-numbers t; 显示序号
+	  company-transformers '(company-sort-by-backend-importance)
+	  company-continue-commands '(not helm-dabbrev)
+	  )
+										; 补全后端使用anaconda
+(add-to-list 'company-backends '(company-anaconda :with company-yasnippet))
+										; 补全快捷键
+(global-set-key (kbd "<C-tab>") 'company-complete)
+										; 补全菜单选项快捷键
+(define-key company-active-map (kbd "C-n") 'company-select-next)
+(define-key company-active-map (kbd "C-p") 'company-select-previous)
+
+;; 在python模式中自动启用
+(add-hook 'python-mode-hook 'anaconda-mode)
+
+
+;; elpy
+(require 'elpy nil t)
+(elpy-enable)
+
+;;flymake-python-pyflakes
+(require 'flymake-python-pyflakes)
+(add-hook 'python-mode-hook 'flymake-python-pyflakes-load)
+;; (add-hook 'python-mode-hook setq visual-line-mode 0)
+
+;; 语法检查：flycheck
+;; (add-hook 'after-init-hook #'global-flycheck-mode);全局开启
+;; ; 关闭flymake，使用flycheck
+(when (require 'flymake-python-pyflakes nil t)
+    (setq elpy-modules(delq 'elpy-module-flymake elpy-modules))
+	  (add-hook 'elpy-mode-hook 'flymake-python-pyflakes-load))
 
 ;;yasnippet
 ;(require 'yasnippet)
@@ -224,56 +278,51 @@ that was stored with ska-point-to-register."
 ;(define-key yas-minor-mode-map (kbd "<f3>") 'yas-expand)
 
 ;; auto-complete
-(ac-config-default)
+;; (ac-config-default)
 
 ;;flymake
 ;(require 'flymake)
 ;(autoload 'flymake-find-file-hook "flymake" "" t)
 ;(add-hook 'find-file-hook 'flymake-find-file-hook)
 
-;;flymake-python-pyflakes
-(require 'flymake-python-pyflakes)
-(add-hook 'python-mode-hook 'flymake-python-pyflakes-load)
-;; (add-hook 'python-mode-hook setq visual-line-mode 0)
-
 ;;pyflakes
-(autoload 'flymake-find-file-hook "flymake" "" t)
-(add-hook 'find-file-hook 'flymake-find-file-hook)
-(setq flymake-gui-warnings-enabled nil)
-(setq flymake-log-level 0)
-(when (load "flymake" t)
-  (
-   defun flymake-pycheckers-init ()
-		 (
-		  let*
-			 (
-			  (
-			   temp-file
-			   (
-				flymake-init-create-temp-buffer-copy
-				'flymake-create-temp-inplace
-				)
-			   )
-			  (
-			   local-file
-			   (
-				file-relative-name
-				temp-file
-				(
-				 file-name-directory buffer-file-name
-									 )
-				)
-			   )
-			  )
-		   (
-			list "pyflakes"  (list local-file)
-				 )
-		   )
+;; (autoload 'flymake-find-file-hook "flymake" "" t)
+;; (add-hook 'find-file-hook 'flymake-find-file-hook)
+;; (setq flymake-gui-warnings-enabled nil)
+;; (setq flymake-log-level 0)
+;; (when (load "flymake" t)
+;;   (
+;;    defun flymake-pycheckers-init ()
+;; 		 (
+;; 		  let*
+;; 			 (
+;; 			  (
+;; 			   temp-file
+;; 			   (
+;; 				flymake-init-create-temp-buffer-copy
+;; 				'flymake-create-temp-inplace
+;; 				)
+;; 			   )
+;; 			  (
+;; 			   local-file
+;; 			   (
+;; 				file-relative-name
+;; 				temp-file
+;; 				(
+;; 				 file-name-directory buffer-file-name
+;; 									 )
+;; 				)
+;; 			   )
+;; 			  )
+;; 		   (
+;; 			list "pyflakes"  (list local-file)
+;; 				 )
+;; 		   )
 
-		 (add-to-list 'flymake-allowed-file-name-masks
-					  '("\\.py\\'" flymake-pycheckers-init))
-		 )
-  )
+;; 		 (add-to-list 'flymake-allowed-file-name-masks
+;; 					  '("\\.py\\'" flymake-pycheckers-init))
+;; 		 )
+;;   )
 
 ;;python-mode
 ;(require 'python-mode)
@@ -387,3 +436,92 @@ that was stored with ska-point-to-register."
   "Kill a rectangular region and save it in the kill ring." t)
 (autoload 'rm-kill-ring-save "rect-mark"
   "Copy a rectangular region to the kill ring." t)
+
+
+
+;;;;;;;;;;;;
+;; Scheme
+;;;;;;;;;;;;
+;; (add-to-list 'load-path "~/.emacs.d")
+;; (autoload 'paredit-mode "paredit"
+;;   "Minor mode for pseudo-structurally editing Lisp code."
+;;   t)
+(require 'cmuscheme)
+(setq scheme-program-name "scheme")         ;; 如果用 Petite 就改成 "petite"
+
+
+;; bypass the interactive question and start the default interpreter
+(defun scheme-proc ()
+  "Return the current Scheme process, starting one if necessary."
+  (unless (and scheme-buffer
+			   (get-buffer scheme-buffer)
+			   (comint-check-proc scheme-buffer))
+	(save-window-excursion
+	  (run-scheme scheme-program-name)))
+  (or (scheme-get-process)
+	  (error "No current process. See variable `scheme-buffer'")))
+
+
+(defun scheme-split-window ()
+  (cond
+   ((= 1 (count-windows))
+	(delete-other-windows)
+	(split-window-vertically (floor (* 0.68 (window-height))))
+	(other-window 1)
+	(switch-to-buffer "*scheme*")
+	(other-window 1))
+   ((not (find "*scheme*"
+			   (mapcar (lambda (w) (buffer-name (window-buffer w)))
+					   (window-list))
+			   :test 'equal))
+	(other-window 1)
+	(switch-to-buffer "*scheme*")
+	(other-window -1))))
+
+
+(defun scheme-send-last-sexp-split-window ()
+  (interactive)
+  (scheme-split-window)
+  (scheme-send-last-sexp))
+
+
+(defun scheme-send-definition-split-window ()
+  (interactive)
+  (scheme-split-window)
+  (scheme-send-definition))
+
+(add-hook 'scheme-mode-hook
+		  (lambda ()
+			(paredit-mode 1)
+			(define-key scheme-mode-map (kbd "<f5>") 'scheme-send-last-sexp-split-window)
+			(define-key scheme-mode-map (kbd "<f6>") 'scheme-send-definition-split-window)))
+
+
+
+;; parenface
+;; (require 'parenface)
+;; (set-face-foreground 'paren-face "DimGray")
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes (quote ("c3c0a3702e1d6c0373a0f6a557788dfd49ec9e66e753fb24493579859c8e95ab" default))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+
+
+;;;;;
+; c
+;;;;;
+(add-hook 'c-mode-hook
+		  '(lambda ()
+			 (c-set-style "cc-mode")
+			 ;; (setq tab-width 8)
+			 ;; (setq indent-tabs-mode t)
+			 ;; (setq c-basic-offset 8)
+			 ))
