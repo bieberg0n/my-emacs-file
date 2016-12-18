@@ -1,3 +1,4 @@
+(setq gc-cons-threshold 100000000)
 ;========外观========
 ;关闭起动时的那个“开机画面”
 (setq inhibit-startup-message t)
@@ -266,6 +267,17 @@ that was stored with ska-point-to-register."
     (setq elpy-modules(delq 'elpy-module-flymake elpy-modules))
 	  (add-hook 'elpy-mode-hook 'flymake-python-pyflakes-load))
 
+;; ipdb
+(defun python-add-breakpoint ()
+    "Add a break point"
+    (interactive)
+    (newline-and-indent)
+    (insert "import ipdb; ipdb.set_trace()")
+    ;; (newline-and-indent)
+    (highlight-lines-matching-regexp "^[ ]*import ipdb; ipdb.set_trace()"))
+
+(define-key python-mode-map (kbd "C-c i") 'python-add-breakpoint)
+
 ;;yasnippet
 ;(require 'yasnippet)
 ;(yas/initialize)
@@ -525,3 +537,12 @@ that was stored with ska-point-to-register."
 			 ;; (setq indent-tabs-mode t)
 			 ;; (setq c-basic-offset 8)
 			 ))
+
+
+;;;;;
+; erlang
+;;;;;
+(setq load-path (cons  "/usr/lib/erlang/lib/tools-2.6.6.5/emacs" load-path))
+(setq erlang-root-dir "/usr/lib")
+(setq exec-path (cons "/usr/bin" exec-path))
+(require 'erlang-start)
